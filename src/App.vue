@@ -3,55 +3,88 @@
 <img alt="Vue logo" src="./assets/logo.png" />
 <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" /> -->
 <GlobalHeader :user="user"></GlobalHeader>
-<!-- <ColumnList :list="list"></ColumnList> -->
+<form action="">
+  <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label">邮箱地址</label>
+    <input
+    v-model="emailRef.val" @blur="validateEmail"
+    type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+    <div class="form-text" v-if="emailRef.error" >{{ emailRef.message }}</div>
+  </div>
+  <div class="mb-3">
+    <label for="exampleInputPassword1" class="form-label">Password</label>
+    <input type="password" class="form-control" id="exampleInputPassword1">
+  </div>
+  <div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+    <label class="form-check-label" for="exampleCheck1">Check me out</label>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<ColumnList :list="list"></ColumnList>
 </template>
 
 <script lang="ts">
 import {
-  defineComponent, ref
+  defineComponent, reactive
 } from 'vue'
 // import HelloWorld from './components/HelloWorld.vue'
-// import ColumnList, { ColumnProps } from './components/ColumnList.vue'
+import ColumnList, { ColumnProps } from './components/ColumnList.vue'
 import GlobalHeader, { UserProps } from './components/GlobalHeader.vue'
 const testUser:UserProps = {
   isLogin: true,
-  name: '爱面子',
+  name: '明明',
   id: 434
 }
-// const testData:ColumnProps[] = [
-//   {
-//     id: 1,
-//     title: 'test1专栏',
-//     avatar: '/img/logo.png',
-//     description: '简介，我是简介'
-//   },
-//   {
-//     id: 2,
-//     title: 'test2专栏',
-//     // avatar: 'https://cli.vuejs.org/favicon.png',
-//     description: '简介，我是简介'
-//   },
-//   {
-//     id: 3,
-//     title: 'test3专栏',
-//     avatar: 'https://cli.vuejs.org/favicon.png',
-//     description: '简介，我是简介'
-//   },
-//   {
-//     id: 4,
-//     title: 'test4专栏',
-//     avatar: 'https://cli.vuejs.org/favicon.png',
-//     description: '简介，我是简介444'
-//   }
-// ]
-
+const testData:ColumnProps[] = [
+  {
+    id: 1,
+    title: 'test1专栏',
+    avatar: '/img/logo.png',
+    description: '简介，我是简介'
+  },
+  {
+    id: 2,
+    title: 'test2专栏',
+    // avatar: 'https://cli.vuejs.org/favicon.png',
+    description: '简介，我是简介'
+  },
+  {
+    id: 3,
+    title: 'test3专栏',
+    avatar: 'https://cli.vuejs.org/favicon.png',
+    description: '简介，我是简介'
+  },
+  {
+    id: 4,
+    title: 'test4专栏',
+    avatar: 'https://cli.vuejs.org/favicon.png',
+    description: '简介，我是简介444'
+  }
+]
+const emailReg = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 export default defineComponent({
   name: 'App',
   components: {
-    // ColumnList,
+    ColumnList,
     GlobalHeader
   },
   setup () {
+    const emailRef = reactive({
+      val: '',
+      error: false,
+      message: ''
+    })
+    const validateEmail = () => {
+      if (emailRef.val.trim() === '') {
+        emailRef.error = true
+        emailRef.message = '不能为空'
+      } else if (!emailReg.test(emailRef.val)) {
+        emailRef.error = true
+        emailRef.message = '邮箱格式错误'
+      }
+    }
     /* const arr = ref([
       {
         id: 12,
@@ -62,8 +95,10 @@ export default defineComponent({
 
     ]) */
     return {
-      // list: testData,
-      user: testUser
+      list: testData,
+      user: testUser,
+      emailRef,
+      validateEmail
     }
   }
 })
