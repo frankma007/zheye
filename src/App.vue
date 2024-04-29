@@ -3,38 +3,52 @@
 <img alt="Vue logo" src="./assets/logo.png" />
 <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" /> -->
 <GlobalHeader :user="user"></GlobalHeader>
-<form action="">
-  <div class="mb-3">
+
+<ValidateForm  @form-submit="onFormSubmit" >
+  <!-- <div class="mb-3">
     <label for="exampleInputEmail1" class="form-label">邮箱地址</label>
     <input
     v-model="emailRef.val" @blur="validateEmail"
     type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
     <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
     <div class="form-text" v-if="emailRef.error" >{{ emailRef.message }}</div>
-  </div>
+  </div> -->
   <div class="mb-3">
-    <label for="exampleInputPassword1" class="form-label">Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword1">
+    <label for="exampleInputPassword1" class="form-label">邮箱</label>
+    <!-- <input type="password" class="form-control" id="exampleInputPassword1">
+     -->
+     <ValidateInput  :rules="emailRules" v-model="emailVal" placeholder="请输入邮箱"  type="text" ref="inputRef"  />
+     {{ emailVal }}
   </div>
-  <div class="mb-3 form-check">
+ <!-- <div class="mb-3">
+    <label for="exampleInputPassword1" class="form-label">密码</label>
+     <ValidateInput :rules="pwdRules"  placeholder="请输入密码" class="hello three" type="password" v-model="pwdVal" />
+     {{ emailVal }}
+  </div> -->
+ <!--   <div class="mb-3 form-check">
     <input type="checkbox" class="form-check-input" id="exampleCheck1">
     <label class="form-check-label" for="exampleCheck1">Check me out</label>
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+  </div> -->
+  <template #submit>
+ <span class="btn btn-danger">提交保存</span>
+  </template>
+  <!-- <button type="submit" class="btn btn-primary">Submit</button> -->
+</ValidateForm>
 <ColumnList :list="list"></ColumnList>
 </template>
 
 <script lang="ts">
 import {
-  defineComponent, reactive
+  defineComponent, reactive, ref
 } from 'vue'
+import ValidateInput, { RulesProp } from '@/components/ValidateInput.vue'
+import ValidateForm from './components/ValidateForm.vue'
 // import HelloWorld from './components/HelloWorld.vue'
 import ColumnList, { ColumnProps } from './components/ColumnList.vue'
 import GlobalHeader, { UserProps } from './components/GlobalHeader.vue'
 const testUser:UserProps = {
   isLogin: true,
-  name: '明明',
+  name: '李白',
   id: 434
 }
 const testData:ColumnProps[] = [
@@ -68,9 +82,30 @@ export default defineComponent({
   name: 'App',
   components: {
     ColumnList,
-    GlobalHeader
+    GlobalHeader,
+    ValidateInput,
+    ValidateForm
   },
   setup () {
+    const inputRef = ref <any>()
+    const emailVal = ref('123@test.com')
+    const pwdVal = ref('123')
+    const onFormSubmit = (res:boolean) => {
+      console.log('result', res)
+      console.log('123', res)
+      emailVal.value = ''
+    }
+    const emailRules:RulesProp = [
+      {
+        type: 'required',
+        message: '电子邮箱不能为空'
+      },
+      {
+        type: 'email',
+        message: '邮箱格式不对'
+      }
+    ]
+
     const emailRef = reactive({
       val: '',
       error: false,
@@ -98,7 +133,13 @@ export default defineComponent({
       list: testData,
       user: testUser,
       emailRef,
-      validateEmail
+      validateEmail,
+      emailRules,
+      emailVal,
+      onFormSubmit,
+      inputRef,
+      pwdVal
+
     }
   }
 })
