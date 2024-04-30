@@ -1,62 +1,72 @@
 <template>
-   <div class="validate-input-container pb-3">
-     <!-- v-model="inputRef.val"  自定义model 组件 双向绑定 v-model  type="text"-->
+  <div class="validate-input-container pb-3">
     <input
+      v-if="tag !== 'textarea'"
       class="form-control"
       :class="{'is-invalid': inputRef.error}"
       :value="inputRef.val"
-      @input="updateValue"
       @blur="validateInput"
+      @input="updateValue"
       v-bind="$attrs"
-      ref="refInput"
     >
+    <textarea
+      v-else
+      class="form-control"
+      :class="{'is-invalid': inputRef.error}"
+      :value="inputRef.val"
+      @blur="validateInput"
+      @input="updateValue"
+      v-bind="$attrs"
+    >
+    </textarea>
     <span v-if="inputRef.error" class="invalid-feedback">{{inputRef.message}}</span>
   </div>
-
 </template>
+
 <script lang="ts">
-import { defineComponent, reactive, PropType, onMounted, ref } from 'vue'
+import { defineComponent, reactive, PropType, onMounted } from 'vue'
 import { emitter } from './ValidateForm.vue'
 const emailReg = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
-interface RuleProp{
-    type:'required'|'email';
-    message:string;
+interface RuleProp {
+  type: 'required' | 'email';
+  message: string;
 }
 export type RulesProp = RuleProp[]
+export type TagType = 'input' | 'textarea'
 export default defineComponent({
   props: {
     rules: Array as PropType<RulesProp>,
-    modelValue: String
+    modelValue: String,
+    tag: {
+      type: String as PropType<TagType>,
+      default: 'input'
+    }
   },
   inheritAttrs: false,
   setup (props, context) {
-    const refInput = ref<HTMLElement |null>(null)
-    console.log(context.attrs)
     const inputRef = reactive({
       val: props.modelValue || '',
       error: false,
       message: ''
     })
-
+    const updateValue = (e: Event) => {
+      const targetValue = (e.target as HTMLInputElement).value
+      inputRef.val = targetValue
+      context.emit('update:modelValue', targetValue)
+    }
     const validateInput = () => {
-      console.log(11)
       if (props.rules) {
         const allPassed = props.rules.every(rule => {
           let passed = true
           inputRef.message = rule.message
           switch (rule.type) {
             case 'required':
-
               passed = (inputRef.val.trim() !== '')
               break
             case 'email':
-              passed = (emailReg.test(inputRef.val))
-              if (refInput.value && !passed) {
-                refInput.value.focus()
-              }
-
+              passed = emailReg.test(inputRef.val)
               break
-            default :
+            default:
               break
           }
           return passed
@@ -66,23 +76,13 @@ export default defineComponent({
       }
       return true
     }
-    const updateValue = (e:Event) => {
-      const targetValue = (e.target as HTMLInputElement).value
-      inputRef.val = targetValue
-      context.emit('update:modelValue', targetValue)
-    }
     onMounted(() => {
-      const a = validateInput
-      if (!a) {
-        context.emit('update:modelValue', '')
-      }
-      emitter.emit('form-item-created', a)
+      emitter.emit('form-item-created', validateInput)
     })
     return {
       inputRef,
       validateInput,
-      updateValue,
-      refInput
+      updateValue
     }
   }
 })

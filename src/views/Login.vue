@@ -19,14 +19,19 @@
             v-model="passwordVal"
           />
         </div>
+        <!-- {{ isLogin }} -->
       </validate-form>
     </div>
   </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import ValidateInput, { RulesProp } from '../components/ValidateInput.vue'
 import ValidateForm from '../components/ValidateForm.vue'
+
+import { GlobalDataProps } from '../store'
+import { useStore } from 'vuex'
 
 export default defineComponent({
 
@@ -36,6 +41,9 @@ export default defineComponent({
     ValidateForm
   },
   setup () {
+    const store = useStore <GlobalDataProps>()
+    const isLogin = computed(() => store.state.user.isLogin)
+    const router = useRouter()
     const emailVal = ref('')
     const emailRules: RulesProp = [
       { type: 'required', message: '电子邮箱地址不能为空' },
@@ -47,13 +55,22 @@ export default defineComponent({
     ]
     const onFormSubmit = (result: boolean) => {
       console.log('result', result)
+      if (result) {
+        // 两种跳转方式
+        // router.push({ name: 'column', params: { id: 1 } })
+        // router.push('/column/1')
+
+        store.commit('login')
+        router.push('/')
+      }
     }
     return {
       emailRules,
       emailVal,
       passwordVal,
       passwordRules,
-      onFormSubmit
+      onFormSubmit,
+      isLogin
     }
   }
 })

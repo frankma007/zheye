@@ -12,22 +12,35 @@
         </div>
       </section>
       <h4 class="font-weight-bold text-center">发现精彩</h4>
+      {{ biggerColumnsLen }}
       <column-list :list="list"></column-list>
     </div>
   </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { testData } from '../testData'
+import { defineComponent, computed } from 'vue'
+// import { testData } from '../testData'
+import { GlobalDataProps } from '../store'
+import { useStore } from 'vuex'
+
 import ColumnList from '../components/ColumnList.vue'
+
 export default defineComponent({
   name: 'Home',
   components: {
     ColumnList
   },
   setup () {
+    const store = useStore <GlobalDataProps>()
+    const list = computed(() => store.state.column)
+    debugger
+    const biggerColumnsLen = computed(() => store.getters.biggerColumnsLen)
+    // const testData = store.state.column
+    console.log(store)
+    debugger
     return {
-      list: testData
+      list: list,
+      biggerColumnsLen
     }
   }
 })
