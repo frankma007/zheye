@@ -12,13 +12,13 @@
         </div>
       </section>
       <h4 class="font-weight-bold text-center">发现精彩</h4>
-      {{ biggerColumnsLen }}
+      <!-- {{ biggerColumnsLen }} -->
       <column-list :list="list"></column-list>
     </div>
   </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, onMounted, ref } from 'vue'
 // import { testData } from '../testData'
 import { GlobalDataProps } from '../store'
 import { useStore } from 'vuex'
@@ -32,15 +32,19 @@ export default defineComponent({
   },
   setup () {
     const store = useStore <GlobalDataProps>()
-    const list = computed(() => store.state.column)
+
     debugger
-    const biggerColumnsLen = computed(() => store.getters.biggerColumnsLen)
+    // const biggerColumnsLen = computed(() => store.getters.biggerColumnsLen)
     // const testData = store.state.column
     console.log(store)
     debugger
+    onMounted(() => {
+      store.dispatch('fetchColumns')
+    })
+    const list = computed(() => store.state.column)
     return {
-      list: list,
-      biggerColumnsLen
+      list: list
+
     }
   }
 })

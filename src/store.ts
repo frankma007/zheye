@@ -1,5 +1,6 @@
 import { createStore } from 'vuex'
 import { testData, testPosts, ColumnProps, PostProps } from './testData'
+import axios from 'axios'
 export type { ColumnProps, PostProps } from './testData'
 interface UserProps {
   isLogin: boolean;
@@ -24,12 +25,26 @@ const store = createStore<GlobalDataProps>({
     },
     createPost (state, newPost) {
       state.posts.push(newPost)
+    },
+    fetchColumns (state, newList) {
+      state.column = newList.list
+    }
+  },
+  actions: {
+    fetchColumns (context) {
+      axios.get('/columns').then(resp => {
+        console.log(context, '报文')
+        context.commit('fetchColumns', resp.data.data)
+
+        debugger
+      })
     }
   },
   getters: {
-    biggerColumnsLen (state) {
-      return state.column.filter(c => c.id > 2).length
-    },
+    // biggerColumnsLen (state) {
+    //   // return state.column.filter(c => c.id > 2).length
+    //   return 2
+    // },
     getColumnById: (state) => (id: number) => {
       return state.column.find(c => c.id === id)
     },
