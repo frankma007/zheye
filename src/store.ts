@@ -1,12 +1,33 @@
 import { createStore } from 'vuex'
-import { testData, testPosts, ColumnProps, PostProps } from './testData'
+// import { testPosts } from './testData'
 import axios from 'axios'
-export type { ColumnProps, PostProps } from './testData'
+// export type { ColumnProps, PostProps } from './testData'
 interface UserProps {
   isLogin: boolean;
   name?: string;
-  id?: number;
-  columnId?: number;
+  _id?: string;
+  column?: string;
+}
+
+interface ImageProps{
+  _id?:string
+  url?:string
+  createdAt?:string
+}
+export interface ColumnProps{
+  _id:string
+  title:string
+  avatar?:ImageProps
+  description:string
+}
+export interface PostProps {
+  _id: string;
+  title: string;
+  excerpt?:string;
+  content?: string;
+  image?: ImageProps;
+  createdAt?: string;
+  column?: string;
 }
 export interface GlobalDataProps {
   column: ColumnProps[];
@@ -15,9 +36,9 @@ export interface GlobalDataProps {
 }
 const store = createStore<GlobalDataProps>({
   state: {
-    column: testData,
-    posts: testPosts,
-    user: { isLogin: true, name: '马可波罗', columnId: 1 }
+    column: [],
+    posts: [],
+    user: { isLogin: true, name: '马可波罗', column: '' }
   },
   mutations: {
     login (state) {
@@ -26,15 +47,41 @@ const store = createStore<GlobalDataProps>({
     createPost (state, newPost) {
       state.posts.push(newPost)
     },
-    fetchColumns (state, newList) {
-      state.column = newList.list
+    fetchColumns (state, rawData) {
+      state.column = rawData.data.list
+    },
+    fetchColumn (state, rawData) {
+      state.column = [rawData.data]
+    },
+    fetchPosts (state, rawData) {
+      state.posts = rawData.data.list
     }
   },
   actions: {
     fetchColumns (context) {
       axios.get('/columns').then(resp => {
         console.log(context, '报文')
-        context.commit('fetchColumns', resp.data.data)
+        context.commit('fetchColumns', resp.data)
+
+        debugger
+      })
+    },
+    fetchColumn ({ commit }, cid:string) {
+      debugger
+      axios.get(`/columns/${cid}`).then(resp => {
+        debugger
+        console.log(resp, '报文')
+        commit('fetchColumn', resp.data)
+
+        debugger
+      })
+    },
+    fetchPosts ({ commit }, cid:string) {
+      debugger
+      axios.get(`/columns/${cid}/posts`).then(resp => {
+        debugger
+        console.log(resp, '报文')
+        commit('fetchPosts', resp.data)
 
         debugger
       })
@@ -45,11 +92,11 @@ const store = createStore<GlobalDataProps>({
     //   // return state.column.filter(c => c.id > 2).length
     //   return 2
     // },
-    getColumnById: (state) => (id: number) => {
-      return state.column.find(c => c.id === id)
+    getColumnById: (state) => (_id: string) => {
+      return state.column.find(c => c._id === _id)
     },
-    getPostsById: (state) => (cid: number) => {
-      return state.posts.filter(post => post.columnId === cid)
+    getPostsById: (state) => (cid: string) => {
+      return state.posts.filter(post => post.column === cid)
     }
   }
 })
