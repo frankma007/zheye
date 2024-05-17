@@ -9,10 +9,15 @@ axios.interceptors.request.use(function (config) {
   console.log(config, 'config')
   debugger
   config.params = { ...config.params, icode: 'FB4C6B8434F751FA' }
+  store.commit('setLoading', true)
   return config
 }, function (error) {
   // 对请求错误做些什么
   return Promise.reject(error)
+})
+axios.interceptors.response.use((config) => {
+  store.commit('setLoading', false)
+  return config
 })
 // axios.interceptors 必须配置在顶部 不然不会被识别
 // axios.get('/columns', { params: { id: '666', name: 'ddd' } }).then(resp => {
