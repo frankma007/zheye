@@ -59,9 +59,16 @@ export default defineComponent({
         // 两种跳转方式
         // router.push({ name: 'column', params: { id: 1 } })
         // router.push('/column/1')
+        const payload = {
+          email: emailVal.value,
+          password: passwordVal.value
+        }
+        store.dispatch('login', payload).then(data => {
+          console.log(data)
+          router.push('/')
+        })
 
-        store.commit('login')
-        router.push('/')
+        // store.commit('login')
       }
     }
     return {

@@ -2,7 +2,7 @@
   <div class="container">
     <global-header :user="currentUser"></global-header>
     <!-- <h1 v-if="loading">正在读取...</h1> -->
-    <Loader v-if="loading" text="hahah"></Loader>
+    <Loader v-if="loading" text="拼命加载中" background="rgba(0,0,0,0.8)"></Loader>
     <router-view></router-view>
     <footer class="text-center py-4 text-secondary bg-light mt-6">
       <small>

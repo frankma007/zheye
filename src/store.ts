@@ -30,6 +30,7 @@ export interface PostProps {
   column?: string;
 }
 export interface GlobalDataProps {
+  token:string
   loading:boolean;
   column: ColumnProps[];
   posts: PostProps[];
@@ -43,17 +44,27 @@ const getAndCommit = async (url:string, mutationName:string, commit:Commit) => {
 
   // commit('setLoading', false)
 }
+const postAndCommit = async (url:string, mutationName:string, commit:Commit, payload:any) => {
+  // commit('setLoading', true)
+  const { data } = await axios.post(url, payload)
+  // await new Promise(resolve => setTimeout(resolve, 3000))
+  commit(mutationName, data)
+
+  // commit('setLoading', false)
+  return payload
+}
 const store = createStore<GlobalDataProps>({
   state: {
+    token: '',
     loading: false,
     column: [],
     posts: [],
-    user: { isLogin: true, name: '马可波罗', column: '' }
+    user: { isLogin: false, name: '马可波罗', column: '' }
   },
   mutations: {
-    login (state) {
-      state.user = { ...state.user, isLogin: true, name: '马可波罗' }
-    },
+    // login (state) {
+    //   state.user = { ...state.user, isLogin: true, name: '马可波罗' }
+    // },
     createPost (state, newPost) {
       state.posts.push(newPost)
     },
@@ -68,6 +79,9 @@ const store = createStore<GlobalDataProps>({
     },
     setLoading (state, status) {
       state.loading = status
+    },
+    login (state, rawData) {
+      state.token = rawData.data.token
     }
   },
   actions: {
@@ -81,6 +95,9 @@ const store = createStore<GlobalDataProps>({
     },
     fetchPosts ({ commit }, cid:string) {
       getAndCommit(`/columns/${cid}/posts`, 'fetchPosts', commit)
+    },
+    login ({ commit }, payload) {
+      return postAndCommit('/user/login', 'login', commit, payload)
     }
   },
   getters: {

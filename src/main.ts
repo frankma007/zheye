@@ -4,11 +4,17 @@ import App from './App.vue'
 import store from './store'
 import router from './router'
 axios.defaults.baseURL = 'http://apis.imooc.com/api/'
-
+const Icode = 'FB4C6B8434F751FA'
 axios.interceptors.request.use(function (config) {
   console.log(config, 'config')
   debugger
-  config.params = { ...config.params, icode: 'FB4C6B8434F751FA' }
+  config.params = { ...config.params, icode: Icode }
+
+  if (config.data instanceof FormData) {
+    config.data.append('icode', Icode)
+  } else {
+    config.data = { ...config.data, icode: Icode }
+  }
   store.commit('setLoading', true)
   return config
 }, function (error) {
@@ -16,7 +22,10 @@ axios.interceptors.request.use(function (config) {
   return Promise.reject(error)
 })
 axios.interceptors.response.use((config) => {
-  store.commit('setLoading', false)
+  setTimeout(() => {
+    store.commit('setLoading', false)
+  }, 3000)
+
   return config
 })
 // axios.interceptors 必须配置在顶部 不然不会被识别
